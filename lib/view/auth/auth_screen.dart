@@ -17,79 +17,12 @@ class AuthScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<AuthBloc>().add(FetchVersionEvent());
-    // return Scaffold(
-    //   backgroundColor: Color(0xFFF5F5F5), // Light background
-    //   body: Padding(
-    //     padding: const EdgeInsets.all(16.0),
-    //     child: Column(
-    //       mainAxisAlignment: MainAxisAlignment.center,
-    //       children: [
-    //         Text(
-    //           'Login to Your Account',
-    //           style: GoogleFonts.poppins(
-    //             fontSize: 24,
-    //             fontWeight: FontWeight.bold,
-    //             color: Colors.indigo,
-    //           ),
-    //         ),
-    //         SizedBox(height: 20),
-    //         TextField(
-    //           controller: emailController,
-    //           decoration: InputDecoration(
-    //             labelText: 'Email',
-    //             labelStyle: GoogleFonts.poppins(),
-    //             border: OutlineInputBorder(),
 
-    //           ),
-    //         ),
-    //         SizedBox(height: 20),
-    //         TextField(
-    //           controller: passwordController,
-    //           obscureText: true,
-    //           decoration: InputDecoration(
-    //             labelText: 'Password',
-    //             labelStyle: GoogleFonts.poppins(),
-    //             border: OutlineInputBorder(),
-    //           ),
-    //         ),
-    //         SizedBox(height: 20),
-    //         ElevatedButton(
-    //           style: ElevatedButton.styleFrom(
-    //             backgroundColor: Colors.amber, // Amber button color
-    //           ),
-    //           onPressed: () {
-    //             Navigator.pushReplacement(
-    //               context,
-    //               MaterialPageRoute(builder: (context) => HomeScreen()),
-    //             );
-    //           },
-    //           child: Text(
-    //             'Login',
-    //             style: GoogleFonts.poppins(
-    //               color: Colors.white,
-    //               fontWeight:FontWeight.bold,
-    //               fontSize: 18,
-    //             ),
-    //           ),
-    //         ),
-    //         SizedBox(height: 100),
-    //         Text(
-    //           'v1.0.0',
-    //           style: GoogleFonts.poppins(
-    //             color: Colors.grey,
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
     return Scaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
             log('message');
-            context.read<PostBloc>().add(FetchPostsEvent());
-            log('post fetched...');
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -121,36 +54,44 @@ class AuthScreen extends StatelessWidget {
                   color: Colors.indigo,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextField(
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
                   labelStyle: GoogleFonts.poppins(),
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextField(
                 controller: passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   labelStyle: GoogleFonts.poppins(),
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) {
                   if (state is AuthLoading) {
-                    return CircularProgressIndicator();
+                    return Center(
+                        child: Transform.scale(
+                      scale: 0.6,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 3,
+                        color: Colors.indigo,
+                      ),
+                    ));
                   }
                   return ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.amber, // Amber button color
                     ),
                     onPressed: () {
+                      FocusScope.of(context).unfocus();
                       context.read<AuthBloc>().add(
                             LoginEvent(
                                 emailController.text, passwordController.text),
@@ -167,7 +108,7 @@ class AuthScreen extends StatelessWidget {
                   );
                 },
               ),
-              SizedBox(height: 100),
+              const SizedBox(height: 100),
               BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) {
                   if (state is AuthVersionLoaded) {
@@ -175,27 +116,13 @@ class AuthScreen extends StatelessWidget {
                     log('version $version');
                   }
                   return Text(
-                    'Version: $version',
+                    'Version : $version',
                     style: GoogleFonts.poppins(
                       color: Colors.grey,
                     ),
                   );
                 },
               ),
-              // FutureBuilder<String>(
-              //   future: context.read<AuthRepository>().getVersion(),
-              //   builder: (context, snapshot) {
-              //     if (snapshot.hasData) {
-              //       return Text(
-              //         'Version: ${snapshot.data}',
-              //         style: GoogleFonts.poppins(
-              //           color: Colors.grey,
-              //         ),
-              //       );
-              //     }
-              //     return CircularProgressIndicator();
-              //   },
-              // ),
             ],
           ),
         ),

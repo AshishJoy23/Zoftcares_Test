@@ -1,9 +1,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/post/post_bloc.dart';
 import '../auth/auth_screen.dart';
@@ -60,19 +60,30 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: BlocBuilder<PostBloc, PostState>(
           builder: (context, state) {
-            if (state is PostLoading && state is! PostLoadingMore) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is PostLoaded || state is PostLoadingMore) {
-              final posts = (state as PostLoaded).posts;
+            if (state is PostLoading) {
+              return const Center(
+                  child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: Colors.indigo,
+              ));
+            } else if (state is PostLoaded) {
+              var posts = state.posts;
+
               return ListView.builder(
+                shrinkWrap: true,
                 controller: _scrollController,
-                itemCount: posts.length +
-                    (state is PostLoadingMore
-                        ? 1
-                        : 0), // Show loading indicator at the bottom
+                itemCount:
+                    posts.length + 1, // Show loading indicator at the bottom
                 itemBuilder: (context, index) {
                   if (index >= posts.length) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(
+                        child: Transform.scale(
+                      scale: 0.6,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 3,
+                        color: Colors.indigo,
+                      ),
+                    ));
                   }
                   final post = posts[index];
                   return Card(
@@ -103,8 +114,34 @@ class _HomeScreenState extends State<HomeScreen> {
                           // Image at the Bottom
                           Image.network(
                             "https://images.pexels.com/photos/307008/pexels-photo-307008.jpeg",
-                            // width: 300,
-                            // height: 200,
+                            errorBuilder: (BuildContext context, Object error,
+                                StackTrace? stackTrace) {
+                              return Center(
+                                child: Icon(Icons.image_not_supported_outlined,
+                                    color: Colors.blueGrey[200], size: 40),
+                              );
+                            },
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    color: Colors.indigo,
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            (loadingProgress
+                                                    .expectedTotalBytes ??
+                                                1)
+                                        : null,
+                                  ),
+                                );
+                              }
+                            },
                             fit: BoxFit.cover,
                           ),
                         ],

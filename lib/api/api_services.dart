@@ -32,7 +32,6 @@ class HttpRequest {
     return response;
   }
 
-
   static Future<Response?> httpPostRequest(
       {Map<String, dynamic>? bodyData, String endPoint = ''}) async {
     // Loader.showLoader();

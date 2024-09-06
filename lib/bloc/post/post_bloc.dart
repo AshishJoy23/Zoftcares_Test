@@ -19,37 +19,40 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<FetchPostsEvent>(_onFetchPosts);
   }
 
-  Future<void> _onFetchPosts(FetchPostsEvent event, Emitter<PostState> emit) async {
-    if (isFetching) return;  // Prevent multiple calls at the same time
-    if (!hasMore){
-      final existingPosts = (state as PostLoaded).posts;
+  Future<void> _onFetchPosts(
+      FetchPostsEvent event, Emitter<PostState> emit) async {
+    if (isFetching) return; // Prevent multiple calls at the same time
+    if (!hasMore) {
+      log('last page!!!!!!!!!!!!!!!!');
+      final state = this.state as PostLoaded;
+      final existingPosts = state.posts;
       emit(PostLoaded(existingPosts));
-    };
+      return; //
+    }
     isFetching = true;
-
-    if (state is PostLoadingMore) {
-      emit(PostLoadingMore((state as PostLoadingMore).posts));
-    } else {
+    if (state is! PostLoaded) {
       emit(PostLoading());
     }
     try {
       final prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('token');
+      final String? token = prefs.getString('token');
       if (token == null) {
         emit(PostError('No token found.'));
         return;
       }
+      final state = this.state;
       final posts = await postRepository.fetchPosts(currentPage);
       hasMore = posts.hasMore;
       currentPage++;
-      // emit(PostLoaded(posts));
-      if (state is PostLoaded || state is PostLoadingMore) {
-        final existingPosts = (state as PostLoaded).posts;
-        emit(PostLoaded(existingPosts + posts.posts));  // Append new posts
+      if (state is PostLoaded) {
+        final existingPosts = state.posts;
+        List<Post> newPostList = existingPosts + posts.posts;
+        emit(PostLoaded(newPostList));
       } else {
         emit(PostLoaded(posts.posts));
       }
     } catch (e) {
+      log('Failed to fetch posts: ${e.toString()}');
       emit(PostError('Failed to fetch posts: ${e.toString()}'));
     }
     isFetching = false;
