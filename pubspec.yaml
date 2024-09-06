@@ -35,7 +35,6 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^8.1.6
   google_fonts: ^6.2.1
-  http: ^1.2.2
   shared_preferences: 
 
 dev_dependencies:

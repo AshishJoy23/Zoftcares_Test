@@ -29,6 +29,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onScroll() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
+      if (_postBloc.hasMore == false) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            duration: Duration(milliseconds: 700),
+            content: Text('No more posts to load!!!'),
+          ),
+        );
+      }
       _postBloc.add(FetchPostsEvent()); // Fetch next page
     }
   }
@@ -68,14 +76,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ));
             } else if (state is PostLoaded) {
               var posts = state.posts;
-
               return ListView.builder(
                 shrinkWrap: true,
                 controller: _scrollController,
-                itemCount:
-                    posts.length + 1, // Show loading indicator at the bottom
+                itemCount: _postBloc.hasMore
+                    ? posts.length + 1
+                    : posts.length, // Show loading indicator at the bottom
                 itemBuilder: (context, index) {
-                  if (index >= posts.length) {
+                  if (index >= posts.length && _postBloc.hasMore) {
                     return Center(
                         child: Transform.scale(
                       scale: 0.6,
